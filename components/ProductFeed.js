@@ -3,7 +3,6 @@ import Product from './Product'
 
 const ProductFeed = (props) => {
   const data = props.data
-  console.log(data)
   return (
     <div className="mx-auto grid grid-flow-row-dense md:-mt-52 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {data.slice(0, 4).map((product) => {

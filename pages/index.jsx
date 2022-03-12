@@ -1,4 +1,3 @@
-import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import Header from '../components/Header'
@@ -10,11 +9,12 @@ export async function getServerSideProps(){
   .then(res=>res.json())
   return {
     props: {
-      data: data,
+      data,
     },
   }
 }
-const Home: NextPage = (props) => {
+const Home = (props) => {
+  const data = props.data;
   return (
     <div className="bg-gray-100">
       <Head>
@@ -29,7 +29,7 @@ const Home: NextPage = (props) => {
         {/* Banner */}
         <Banner />
         {/* Product Feed */}
-        <ProductFeed data={props.data} />
+        <ProductFeed data={data} />
       </main>
     </div>
   )
