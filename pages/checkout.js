@@ -4,13 +4,43 @@ import Image from 'next/image'
 import { useSelector } from 'react-redux'
 import CheckOutProduct from '../components/CheckOutProduct'
 import { useSession } from 'next-auth/react'
+import { loadStripe } from '@stripe/stripe-js'
+const stripePromise = loadStripe(process.env.PublishableKey)
 
 const checkout = () => {
   const { data: session } = useSession()
   const items = useSelector((state) => state.basket.items)
-  const totalValue = items.reduce((total,product)=>{
+  const totalValue = items.reduce((total, product) => {
     return total + product.price
-  },0)
+  }, 0)
+  const createCheckOutSession = async () => {
+    const stripe = await stripePromise
+    const data = {
+      items: items,
+      email: session.user.email,
+    }
+    // Call the backend to create a checkout session
+    const checkoutSession = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      mode: 'cors',
+      cache: 'no-cache',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      redirect: 'follow',
+      referrerPolicy: 'no-referrer',
+      body: JSON.stringify(data),
+    })
+    const response = await checkoutSession.json()
+    // Redirect user/customer to stripe checkout
+    const result = await stripe.redirectToCheckout({
+      sessionId: response.id,
+    })
+    if (result.error) {
+      alert(result.error.message)
+    }
+  }
   return (
     <div className="bg-gray-100">
       <Header />
@@ -40,12 +70,17 @@ const checkout = () => {
             {items.length > 0 ? (
               <>
                 <h2 className="whitespace-nowrap">
-                  Subtotal ({items.length} items): <span className="font-bold">&#36;{totalValue}</span>
+                  Subtotal ({items.length} items):{' '}
+                  <span className="font-bold">&#8377; {totalValue}</span>
                 </h2>
                 <button
                   disabled={!session}
+                  role="link"
+                  onClick={createCheckOutSession}
                   className={`btn button mt-2 cursor-pointer ${
-                    !session?('cursor-not-allowed border-gray-200 from-gray-300  to-gray-500 text-gray-300'): ""
+                    !session
+                      ? 'cursor-not-allowed border-gray-200 from-gray-300  to-gray-500 text-gray-300'
+                      : ''
                   }`}
                 >
                   {!session ? 'Sign in to Checkout' : 'Proceed to Checkout'}

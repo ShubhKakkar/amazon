@@ -39,7 +39,7 @@ const Product = (props) => {
           ))}
       </div>
         <p className="my-2 text-xs line-clamp-2">{product.description}</p>
-        <p className="font-bold">&#36;{product.price}</p>
+        <p className="font-bold">&#8377; {product.price}</p>
         <div className="flex items-center space-x-2">
           {hasPrime ? (
             <img
