@@ -1,5 +1,8 @@
 const stripe = require('stripe')(process.env.SecretKey)
+import absoluteUrl from 'next-absolute-url'
+
 const handler = async (req, res) => {
+  const { origin } = await absoluteUrl(req)
   const { items, email } = req.body
   const transformedItems = items.map((item) => ({
     description: item.description,
@@ -21,8 +24,8 @@ const handler = async (req, res) => {
     },
     line_items: transformedItems,
     mode: 'payment',
-    success_url: `${process.env.HOST}/success`,
-    cancel_url: `${process.env.HOST}/checkout`,
+    success_url: `${origin}/success`,
+    cancel_url: `${origin}/checkout`,
     metadata: {
       email,
       images: JSON.stringify(items.map((item) => item.image)),
